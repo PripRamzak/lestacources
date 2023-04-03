@@ -16,7 +16,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}
         mkdir build
-        cmake .. -G "Ninja"
+        cmake ..
         cmake --build .
     - name: without lib
       run: ./build/01-helloworld/HelloWorld
