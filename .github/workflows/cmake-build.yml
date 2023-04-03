@@ -22,6 +22,6 @@ jobs:
     - name: without lib
       run: ./build/01-helloworld/HelloWorld
     - name: with static linking
-      run: ./build/02-helloworldlib/helloworld-static
+      run: ./build/02-helloworldlib/helloworld_static
     - name: with dynamic linking
-      run: ./build/02-helloworldlib/helloworld-shared
+      run: ./build/02-helloworldlib/helloworld_shared
