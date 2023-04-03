@@ -5,5 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(HelloWorld main.cpp)
 
-install(TARGETS HelloWorld
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+include(CTest)
+
+add_test(NAME HelloWorldTest COMMAND HelloWorld)
