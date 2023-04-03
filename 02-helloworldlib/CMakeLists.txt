@@ -1,4 +1,4 @@
-project (helloworldlib)
+project (helloworldwithlibs)
 set (CMAKE_CXX_STANDART 20)
 
 add_subdirectory(lib)
