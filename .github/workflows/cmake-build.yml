@@ -1,0 +1,27 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-fedora:
+
+    runs-on: fedora-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run: |
+        cd &{{ github.workspace }}
+        mkdir build
+        cmake .. -G "Ninja"
+        cmake --build .
+    - name: without lib
+      run: ./build/01-helloworld/HelloWorld
+    - name: with static linking
+      run: ./build/02-helloworldlib/helloworld-static
+    - name: with dynamic linking
+      run: ./build/02-helloworldlib/helloworld-shared
