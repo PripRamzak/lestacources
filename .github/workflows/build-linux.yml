@@ -19,6 +19,10 @@ jobs:
         cd build
         cmake ..
         cmake --build .
+        cd 01-helloworld
+        ctest
+        cd ../02-helloworldlib
+        ctest
     - name: without lib
       run: ./build/01-helloworld/HelloWorld
     - name: with static linking
