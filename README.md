@@ -2,4 +2,4 @@
 
 Working builds:
 
-![builds on](https://github.com/PripRamzak/lestacources/actions/workflows/build-linux.yml/badge.svg)
+[![linux-build](https://github.com/PripRamzak/lestacources/actions/workflows/build-linux.yml/badge.svg)](https://github.com/PripRamzak/lestacources/actions/workflows/build-linux.yml)
