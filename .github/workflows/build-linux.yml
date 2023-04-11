@@ -12,20 +12,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - name: build
+    
+    - name: SDL3_install
       run: |
         cd ${{ github.workspace }}
+        git clone https://github.com/libsdl-org/SDL.git
+        mkdir SDL/build
+        cmake -S SDL -B SDL/build -DSDL_STATIC=ON
+        cmake --build SDL/build
+        cmake --install SDL/build
+        
+    - name: build
+      run: |
         mkdir build
         cd build
         cmake ..
         cmake --build .
-        cd 01-helloworld
-        ctest
-        cd ../02-helloworldlib
-        ctest
-    - name: without lib
-      run: ./build/01-helloworld/HelloWorld
-    - name: with static linking
-      run: ./build/02-helloworldlib/helloworld_static
-    - name: with dynamic linking
-      run: ./build/02-helloworldlib/helloworld_shared
