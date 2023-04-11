@@ -20,7 +20,7 @@ jobs:
         mkdir SDL/build
         cmake -S SDL -B SDL/build -DSDL_STATIC=ON
         cmake --build SDL/build
-        cmake --install SDL/build
+        sudo cmake --install SDL/build
         
     - name: build
       run: |
