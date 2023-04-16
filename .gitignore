@@ -1,3 +1,7 @@
 build-HelloWorld-Desktop-Debug
 HelloWorld/CMakeLists.txt.user
 build
+SDL
+11-simple-SDL-version/CMakeLists.txt.user
+12-windowed-SDL-version/CMakeLists.txt.user
+21-SDL-loop/CMakeLists.txt.user
