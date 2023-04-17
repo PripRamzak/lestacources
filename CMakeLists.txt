@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 project (LestaCourses CXX)
 
+option(ADD_SDL3_TTF "Add builds with SDL3_ttf" ON)
+
 add_subdirectory(01-helloworld)
 add_subdirectory(02-helloworldlib)
 add_subdirectory(11-simple-SDL-version)
-add_subdirectory(12-windowed-SDL-version)
+if(ADD_SDL3_TTF)
+	add_subdirectory(12-windowed-SDL-version)
+endif(ADD_SDL3_TTF)
 add_subdirectory(21-SDL-loop)
 add_subdirectory(22-SDL-engine-static)
+add_subdirectory(23-SDL-engine-shared)
+add_subdirectory(24-SDL-hot-reload)

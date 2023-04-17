@@ -1,10 +1,10 @@
-project(engine_lib)
+project(engine-lib-static)
 
 find_package(SDL3 REQUIRED)
 
-add_library(engine STATIC include/engine.hxx src/engine.cxx)
-target_compile_features(engine PUBLIC cxx_std_20)
+add_library(engine-static STATIC include/engine.hxx src/engine.cxx)
+target_compile_features(engine-static PUBLIC cxx_std_20)
 
-target_include_directories(engine PUBLIC include)
+target_include_directories(engine-static PUBLIC include)
 
-target_link_libraries(engine PRIVATE SDL3::SDL3-static)
+target_link_libraries(engine-static PRIVATE SDL3::SDL3-shared)

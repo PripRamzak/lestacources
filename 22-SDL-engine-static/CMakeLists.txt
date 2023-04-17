@@ -3,7 +3,7 @@ project(22-SDL-engine-static CXX)
 
 add_subdirectory(lib)
 
-add_executable(22-SDL-engine-static src/game.cxx)
+add_executable(22-SDL-engine-static src/main.cxx)
 target_compile_features(22-SDL-engine-static PUBLIC cxx_std_20)
 
-target_link_libraries(22-SDL-engine-static PRIVATE engine)
+target_link_libraries(22-SDL-engine-static PRIVATE engine-static)
