@@ -26,5 +26,6 @@ jobs:
       run: |
         mkdir build
         cd build
+        cmake -DADD_SDL3_TTF=OFF
         cmake ..
         cmake --build .
