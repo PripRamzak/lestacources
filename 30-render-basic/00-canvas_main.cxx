@@ -1,4 +1,4 @@
-#include "canvas.hxx"
+#include "00-canvas.hxx"
 
 #include <cstdlib>
 
@@ -15,10 +15,12 @@ int main(int argc, char** argv)
 
     std::string filename = "green_background.ppm";
 
-    image.SaveImage(filename);
+    if (image.SaveImage(filename))
+        return EXIT_FAILURE;
 
     Canvas loaded_image(0, 0);
-    loaded_image.LoadImage(filename);
+    if (loaded_image.LoadImage(filename))
+        return EXIT_FAILURE;
 
     if (image == loaded_image)
         std::cout << "image == loaded_image" << std::endl;

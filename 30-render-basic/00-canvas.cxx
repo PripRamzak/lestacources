@@ -1,0 +1,150 @@
+#include "00-canvas.hxx"
+
+Color::Color()
+    : red(0)
+    , green(0)
+    , blue(0)
+{
+}
+
+Color::Color(uint8_t r, uint8_t g, uint8_t b)
+    : red(r)
+    , green(g)
+    , blue(b)
+{
+}
+
+bool operator==(const Color& color_first, const Color& color_second)
+{
+    return color_first.red == color_second.red &&
+           color_first.green == color_second.green &&
+           color_first.blue == color_second.blue;
+}
+
+Canvas::Canvas()
+    : width(0)
+    , height(0)
+{
+}
+
+Canvas::Canvas(std::size_t w, std::size_t h)
+    : width(w)
+    , height(h)
+{
+    pixels.resize(width * height);
+}
+
+bool Canvas::SaveImage(std::string& filename)
+{
+    std::ofstream image;
+    image.exceptions(std::ofstream::failbit);
+    try
+    {
+        image.open(filename, std::ofstream::binary);
+        image << "P6\n" << width << ' ' << height << '\n' << 255 << '\n';
+
+        std::streamsize bufer_size =
+            static_cast<std::streamsize>(pixels.size() * sizeof(Color));
+        image.write(reinterpret_cast<const char*>(pixels.data()), bufer_size);
+
+        image.close();
+    }
+    catch (std::ofstream::failure fail)
+    {
+        std::cerr << "Exception opening/writing/closing file" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
+bool Canvas::LoadImage(std::string& filename)
+{
+    std::ifstream image;
+    image.exceptions(std::ifstream::failbit);
+    try
+    {
+        image.open(filename, std::ifstream::binary);
+
+        std::string file_format, color_format;
+        char        whitespace;
+        image >> file_format >> width >> height >> color_format >>
+            std::noskipws >> whitespace;
+
+        if (!iswspace(whitespace))
+        {
+            std::cerr << "Expected whitespace" << std::endl;
+            return 1;
+        }
+
+        pixels.resize(width * height);
+        if (pixels.size() != width * height)
+        {
+            std::cerr << "Image size not match" << std::endl;
+            return 1;
+        }
+
+        std::streamsize bufer_size =
+            static_cast<std::streamsize>(pixels.size() * sizeof(Color));
+        image.read(reinterpret_cast<char*>(pixels.data()), bufer_size);
+
+        image.close();
+    }
+    catch (std::ifstream::failure)
+    {
+        std::cerr << "Exception opening/reading/closing file" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
+void Canvas::SetPixel(size_t x, size_t y, Color& c)
+{
+    size_t pixel_number     = width * y + x;
+    pixels.at(pixel_number) = c;
+}
+
+Color Canvas::GetPixel(size_t x, size_t y) const
+{
+    size_t pixel_number = width * y + x;
+    return pixels.at(pixel_number);
+}
+
+std::vector<Color>::iterator Canvas::Begin()
+{
+    return pixels.begin();
+}
+
+std::vector<Color>::iterator Canvas::End()
+{
+    return pixels.end();
+}
+
+bool operator==(const Canvas& canvas_first, const Canvas& canvas_second)
+{
+    return canvas_first.pixels == canvas_second.pixels;
+}
+
+Position::Position()
+    : x(0)
+    , y(0)
+{
+}
+
+Position::Position(uint32_t x, uint32_t y)
+    : x(x)
+    , y(y)
+{
+}
+
+Position Position::GenerateRandom(int width, int height)
+{
+    return { static_cast<uint32_t>(rand() % width),
+             static_cast<uint32_t>(rand() % height) };
+}
+
+Position operator-(const Position& position_first,
+                   const Position& position_second)
+{
+    return { position_first.x - position_second.x,
+             position_first.y - position_second.y };
+}
