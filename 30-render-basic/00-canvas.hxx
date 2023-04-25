@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <fstream>
-#include <iostream>
 #include <vector>
 
 class Color
@@ -38,13 +37,15 @@ public:
 
 class Position
 {
-    uint32_t x;
-    uint32_t y;
+    int x;
+    int y;
 
 public:
     Position();
-    Position(uint32_t x, uint32_t y);
-    Position        GenerateRandom(int width, int height);
+    Position(int x, int y);
+    uint32_t        GetX();
+    uint32_t        GetY();
+    static Position GenerateRandom(int width, int height);
     friend Position operator-(const Position& position_first,
                               const Position& position_second);
     friend bool     operator==(const Position& position_first,
@@ -56,8 +57,8 @@ using Pixels = std::vector<Position>;
 class Render
 {
 public:
-    virtual void   Clear(Color)                               = 0;
+    virtual void   Clear(Color c)                             = 0;
     virtual void   SetPixel(Position p, Color c)              = 0;
     virtual Pixels GetPositions(Position start, Position end) = 0;
-    virtual ~Render()                                         = 0;
+    virtual ~Render();
 };

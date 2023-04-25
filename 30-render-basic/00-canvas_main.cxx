@@ -1,6 +1,7 @@
 #include "00-canvas.hxx"
 
 #include <cstdlib>
+#include <iostream>
 
 int main(int argc, char** argv)
 {

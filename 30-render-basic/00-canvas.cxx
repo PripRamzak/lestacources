@@ -1,5 +1,8 @@
 #include "00-canvas.hxx"
 
+#include <algorithm>
+#include <iostream>
+
 Color::Color()
     : red(0)
     , green(0)
@@ -130,16 +133,25 @@ Position::Position()
 {
 }
 
-Position::Position(uint32_t x, uint32_t y)
+Position::Position(int x, int y)
     : x(x)
     , y(y)
 {
 }
 
+uint32_t Position::GetX()
+{
+    return x;
+}
+
+uint32_t Position::GetY()
+{
+    return y;
+}
+
 Position Position::GenerateRandom(int width, int height)
 {
-    return { static_cast<uint32_t>(rand() % width),
-             static_cast<uint32_t>(rand() % height) };
+    return { rand() % width, rand() % height };
 }
 
 Position operator-(const Position& position_first,
@@ -148,3 +160,5 @@ Position operator-(const Position& position_first,
     return { position_first.x - position_second.x,
              position_first.y - position_second.y };
 }
+
+Render::~Render(){};
