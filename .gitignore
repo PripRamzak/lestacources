@@ -1,10 +1,12 @@
-build-HelloWorld-Desktop-Debug
-HelloWorld/CMakeLists.txt.user
 build
 SDL
+build-HelloWorld-Desktop-Debug
+HelloWorld/CMakeLists.txt.user
 11-simple-SDL-version/CMakeLists.txt.user
 12-windowed-SDL-version/CMakeLists.txt.user
 21-SDL-loop/CMakeLists.txt.user
 22-SDL-engine-static/CMakeLists.txt.user
 23-SDL-engine-shared/CMakeLists.txt.user
 24-SDL-hot-reload/CMakeLists.txt.user
+24-SDL-hot-reload/game.cxx
+build-24-SDL-hot-reload-Desktop-Debug
