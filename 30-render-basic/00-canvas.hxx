@@ -43,8 +43,8 @@ class Position
 public:
     Position();
     Position(int x, int y);
-    uint32_t        GetX();
-    uint32_t        GetY();
+    int             GetX();
+    int             GetY();
     static Position GenerateRandom(int width, int height);
     friend Position operator-(const Position& position_first,
                               const Position& position_second);

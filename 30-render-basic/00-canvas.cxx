@@ -139,12 +139,12 @@ Position::Position(int x, int y)
 {
 }
 
-uint32_t Position::GetX()
+int Position::GetX()
 {
     return x;
 }
 
-uint32_t Position::GetY()
+int Position::GetY()
 {
     return y;
 }

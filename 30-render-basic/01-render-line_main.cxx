@@ -4,14 +4,14 @@
 
 int main(int argc, char** argv)
 {
-    const Color black = { 0, 0, 0 };
+    const Color black{ 0, 0, 0 };
 
     size_t width  = 800;
     size_t height = 600;
 
-    Canvas canvas = { width, height };
+    Canvas image{ width, height };
 
-    RenderLine render(canvas);
+    RenderLine render(image);
     render.Clear(black);
 
     Position start, end;
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 
     std::string filename = "01-lines.ppm";
 
-    if (canvas.SaveImage(filename))
+    if (image.SaveImage(filename))
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
