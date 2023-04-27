@@ -16,8 +16,8 @@ int main(int argc, char** argv)
     render.Clear(black);
 
     Pixel v1{ { 10, 10, 0 }, red };
-    Pixel v2{ { 580, 210, 0 }, green };
-    Pixel v3{ { 340, 370, 0 }, blue };
+    Pixel v2{ { 540, 270, 0 }, green };
+    Pixel v3{ { 90, 380, 0 }, blue };
 
     std::vector<Pixel>   vertices{ v1, v2, v3 };
     std::vector<uint8_t> indexes{ 0, 1, 2 };

@@ -123,19 +123,22 @@ void RenderTriangleInterpolated::RasterizeTriangle(Pixel& vertex_first,
                 vertex_first.position.y > vertex_third.position.y);
     };
 
-    if (find_mid(vertex_first, vertex_second, vertex_third))
+    if (find_mid(vertex_first, vertex_second, vertex_third) ||
+        vertex_second.position.y == vertex_third.position.y)
     {
         mid               = vertex_first;
         vertex_first_new  = vertex_second;
         vertex_second_new = vertex_third;
     }
-    else if (find_mid(vertex_second, vertex_first, vertex_third))
+    else if (find_mid(vertex_second, vertex_first, vertex_third) ||
+             vertex_first.position.y == vertex_third.position.y)
     {
         mid               = vertex_second;
         vertex_first_new  = vertex_first;
         vertex_second_new = vertex_third;
     }
-    else
+    else if (find_mid(vertex_third, vertex_first, vertex_second) ||
+             vertex_first.position.y == vertex_second.position.y)
     {
         mid               = vertex_third;
         vertex_first_new  = vertex_first;
