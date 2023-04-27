@@ -13,7 +13,10 @@ class Color
 public:
     Color();
     Color(uint8_t r, uint8_t g, uint8_t b);
-    bool friend operator==(const Color& color_first, const Color& color_second);
+    friend bool operator==(const Color& color_first, const Color& color_second);
+    friend Color interpolate(const Color& first,
+                             const Color& second,
+                             const double t);
 };
 
 class Canvas

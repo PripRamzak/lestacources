@@ -12,3 +12,6 @@ target_compile_features(02-render-triangle PUBLIC cxx_std_20)
 
 add_executable(03-render-triangle-indexed 00-canvas.cxx 01-render-line.cxx 02-render-triangle.cxx 03-render-triangle-indexed.hxx 03-render-triangle-indexed.cxx 03-render-triangle-indexed_main.cxx)
 target_compile_features(03-render-triangle-indexed PUBLIC cxx_std_20)
+
+add_executable(04-render-triangle-interpolated 00-canvas.cxx 01-render-line.cxx 02-render-triangle.cxx 03-render-triangle-indexed.cxx 04-render-triangle-interpolated.hxx 04-render-triangle-interpolated.cxx 04-render-triangle-interpolated_main.cxx)
+target_compile_features(03-render-triangle-indexed PUBLIC cxx_std_20)

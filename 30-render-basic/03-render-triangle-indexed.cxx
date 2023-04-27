@@ -5,9 +5,9 @@ RenderTriangleIndexed::RenderTriangleIndexed(Canvas& c)
 {
 }
 
-void RenderTriangleIndexed::DrawTriangleIndexed(Pixels&               vertices,
-                                                std::vector<uint8_t>& indexes,
-                                                Color                 color)
+void RenderTriangleIndexed::DrawTriangle(Pixels&               vertices,
+                                         std::vector<uint8_t>& indexes,
+                                         Color                 color)
 
 {
     for (size_t i = 0; i < indexes.size(); i += 3)

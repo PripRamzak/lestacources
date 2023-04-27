@@ -45,58 +45,11 @@ int main(int argc, char** argv)
                 indexes.push_back(index);
         }
 
-    render.DrawTriangleIndexed(vertices, indexes, white);
+    render.DrawTriangle(vertices, indexes, white);
 
     std::string filename = "03-triangles-indexed.ppm";
     if (image.SaveImage(filename))
         return EXIT_FAILURE;
-
-    /*render.Clear(black);
-    vertices.clear();
-    indexes.clear();
-
-    for (int y = 0; y <= triangles_number_y / 2; y++)
-        for (int x = y; x <= triangles_number_x - y; x++)
-        {
-            Position vertex{ x * step_x, y * step_y };
-            vertices.push_back(vertex);
-        }
-
-    for (int y = 0; y < triangles_number_y / 2; y++)
-        for (int x = y; x < triangles_number_x - y; x++)
-        {
-            uint8_t index_first  = y * (triangles_number_y + 1) + x - y;
-            uint8_t index_second = index_first + 1;
-            uint8_t index_third  = (y + 1) * (triangles_number_y + 1) + x - y;
-            uint8_t index_forth  = index_third - 1;
-
-            if (x < triangles_number_x / 2)
-            {
-                for (uint8_t index : { index_first, index_second, index_third })
-                    indexes.push_back(index);
-
-                if (x == y)
-                    continue;
-                for (uint8_t index : { index_first, index_third, index_forth })
-                    indexes.push_back(index);
-            }
-            else
-            {
-                for (uint8_t index : { index_first, index_second, index_forth })
-                    indexes.push_back(index);
-
-                if (x + 1 == triangles_number_x - y)
-                    continue;
-                for (uint8_t index : { index_second, index_third, index_forth })
-                    indexes.push_back(index);
-            }
-        }
-
-    render.DrawTriangleIndexed(vertices, indexes, white);
-
-    filename = "03-big-triangle-from-small.ppm";
-    if (image.SaveImage(filename))
-        return EXIT_FAILURE;*/
 
     return EXIT_SUCCESS;
 }
