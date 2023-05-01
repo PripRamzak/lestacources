@@ -2,20 +2,6 @@
 
 #include <cmath>
 
-Position3D::Position3D()
-    : x(0)
-    , y(0)
-    , z(0)
-{
-}
-
-Position3D::Position3D(double x, double y, double z)
-    : x(x)
-    , y(y)
-    , z(z)
-{
-}
-
 Position3D interpolate(const Position3D& first,
                        const Position3D& second,
                        const double      t)
@@ -35,19 +21,7 @@ Color interpolate(const Color& first, const Color& second, const double t)
                  std::round(first.blue + second.blue * t - first.blue * t)) };
 }
 
-Pixel::Pixel()
-    : color(Color())
-    , position(Position3D())
-{
-}
-
-Pixel::Pixel(Position3D p, Color c)
-    : position(p)
-    , color(c)
-{
-}
-
-Pixel interpolate(const Pixel& first, const Pixel& second, const double t)
+Vertex interpolate(const Vertex& first, const Vertex& second, const double t)
 {
     return { interpolate(first.position, second.position, t),
              interpolate(first.color, second.color, t) };
@@ -59,15 +33,15 @@ RenderTriangleInterpolated::RenderTriangleInterpolated(Canvas& c)
 }
 
 void RenderTriangleInterpolated::RasterizeHorizontalLine(
-    Pixel& left, Pixel& right, std::vector<Pixel>& pixels)
+    Vertex& left, Vertex& right, std::vector<Vertex>& pixels)
 {
     int pixels_count = std::round(right.position.x - left.position.x);
 
     if (pixels_count > 0)
-        for (int i = 0; i < pixels_count; i++)
+        for (int x = 0; x <= pixels_count + 1; x++)
         {
-            double t         = static_cast<double>(i) / (pixels_count + 1);
-            Pixel  pixel_new = interpolate(left, right, t);
+            double t         = static_cast<double>(x) / (pixels_count + 1);
+            Vertex pixel_new = interpolate(left, right, t);
             pixels.push_back(pixel_new);
         }
     else
@@ -75,10 +49,10 @@ void RenderTriangleInterpolated::RasterizeHorizontalLine(
 }
 
 void RenderTriangleInterpolated::RasterizeHorizontalTriangle(
-    Pixel&              vertex_left,
-    Pixel&              vertex_right,
-    Pixel&              vertex_single,
-    std::vector<Pixel>& pixels)
+    Vertex&              vertex_left,
+    Vertex&              vertex_right,
+    Vertex&              vertex_single,
+    std::vector<Vertex>& pixels)
 {
     if (vertex_single.position.y == vertex_left.position.y)
     {
@@ -95,27 +69,25 @@ void RenderTriangleInterpolated::RasterizeHorizontalTriangle(
         int pixels_count =
             (std::abs(vertex_single.position.y - vertex_left.position.y));
         int border = vertex_left.position.y;
-        for (int y = vertex_single.position.y; y != border; y += y_step)
+        for (int y = 0; std::abs(y) <= pixels_count + 1; y += y_step)
         {
-            double t =
-                static_cast<double>(std::abs(y - vertex_single.position.y)) /
-                (pixels_count + 1);
-            Pixel left  = interpolate(vertex_left, vertex_single, t);
-            Pixel right = interpolate(vertex_right, vertex_single, t);
+            double t    = static_cast<double>(std::abs(y)) / (pixels_count + 1);
+            Vertex left = interpolate(vertex_left, vertex_single, t);
+            Vertex right = interpolate(vertex_right, vertex_single, t);
             RasterizeHorizontalLine(left, right, pixels);
         }
     }
 }
 
-void RenderTriangleInterpolated::RasterizeTriangle(Pixel& vertex_first,
-                                                   Pixel& vertex_second,
-                                                   Pixel& vertex_third,
-                                                   std::vector<Pixel>& pixels)
+void RenderTriangleInterpolated::RasterizeTriangle(Vertex& vertex_first,
+                                                   Vertex& vertex_second,
+                                                   Vertex& vertex_third,
+                                                   std::vector<Vertex>& pixels)
 {
-    Pixel mid, vertex_first_new, vertex_second_new;
+    Vertex mid, vertex_first_new, vertex_second_new;
 
     auto find_mid =
-        [](Pixel& vertex_first, Pixel& vertex_second, Pixel& vertex_third)
+        [](Vertex& vertex_first, Vertex& vertex_second, Vertex& vertex_third)
     {
         return (vertex_first.position.y > vertex_second.position.y &&
                 vertex_first.position.y < vertex_third.position.y) ||
@@ -123,6 +95,41 @@ void RenderTriangleInterpolated::RasterizeTriangle(Pixel& vertex_first,
                 vertex_first.position.y > vertex_third.position.y);
     };
 
+    auto find_left = [](Vertex& vertex_first, Vertex& vertex_second)
+    { return vertex_first.position.x < vertex_second.position.x; };
+
+    if (vertex_first.position.y == vertex_second.position.y ==
+        vertex_third.position.y)
+    {
+        if (find_left(vertex_first, vertex_second))
+        {
+            if (find_left(vertex_first, vertex_third))
+            {
+                if (find_left(vertex_second, vertex_third))
+                    RasterizeHorizontalLine(vertex_first, vertex_third, pixels);
+                else
+                    RasterizeHorizontalLine(
+                        vertex_first, vertex_second, pixels);
+            }
+            else
+                RasterizeHorizontalLine(vertex_third, vertex_second, pixels);
+        }
+        else
+        {
+            if (find_left(vertex_second, vertex_third))
+            {
+                if (find_left(vertex_third, vertex_first))
+                    RasterizeHorizontalLine(
+                        vertex_second, vertex_first, pixels);
+                else
+                    RasterizeHorizontalLine(
+                        vertex_second, vertex_third, pixels);
+            }
+            else
+                RasterizeHorizontalLine(vertex_third, vertex_second, pixels);
+        }
+        return;
+    }
     if (find_mid(vertex_first, vertex_second, vertex_third) ||
         vertex_second.position.y == vertex_third.position.y)
     {
@@ -145,10 +152,6 @@ void RenderTriangleInterpolated::RasterizeTriangle(Pixel& vertex_first,
         vertex_second_new = vertex_second;
     }
 
-    auto find_left = [](Pixel& vertex_first, Pixel& vertex_second)
-
-    { return vertex_first.position.x < vertex_second.position.x; };
-
     if (vertex_first_new.position.y == vertex_second_new.position.y)
     {
         if (find_left(vertex_first_new, vertex_second_new))
@@ -165,7 +168,7 @@ void RenderTriangleInterpolated::RasterizeTriangle(Pixel& vertex_first,
             std::abs(vertex_first_new.position.y -
                      vertex_second_new.position.y));
 
-        Pixel second_mid = interpolate(vertex_first_new, vertex_second_new, t);
+        Vertex second_mid = interpolate(vertex_first_new, vertex_second_new, t);
 
         if (find_left(mid, second_mid))
         {
@@ -184,8 +187,8 @@ void RenderTriangleInterpolated::RasterizeTriangle(Pixel& vertex_first,
     }
 }
 
-void RenderTriangleInterpolated::DrawTriangle(std::vector<Pixel>&   vertices,
-                                              std::vector<uint8_t>& indexes)
+void RenderTriangleInterpolated::DrawTriangles(std::vector<Vertex>&  vertices,
+                                               std::vector<uint8_t>& indexes)
 {
     for (size_t i = 0; i < indexes.size(); i += 3)
     {
@@ -193,16 +196,16 @@ void RenderTriangleInterpolated::DrawTriangle(std::vector<Pixel>&   vertices,
         uint8_t index_second = indexes.at(i + 1);
         uint8_t index_third  = indexes.at(i + 2);
 
-        Pixel vertex_first  = vertices.at(index_first);
-        Pixel vertex_second = vertices.at(index_second);
-        Pixel vertex_third  = vertices.at(index_third);
+        Vertex vertex_first  = vertices.at(index_first);
+        Vertex vertex_second = vertices.at(index_second);
+        Vertex vertex_third  = vertices.at(index_third);
 
-        std::vector<Pixel> pixels_interpolated;
+        std::vector<Vertex> pixels_interpolated;
 
         RasterizeTriangle(
             vertex_first, vertex_second, vertex_third, pixels_interpolated);
 
-        for (Pixel& interpolated_pixel : pixels_interpolated)
+        for (Vertex& interpolated_pixel : pixels_interpolated)
         {
             Position pos{
                 static_cast<int>(std::round(interpolated_pixel.position.x)),
@@ -212,3 +215,5 @@ void RenderTriangleInterpolated::DrawTriangle(std::vector<Pixel>&   vertices,
         }
     }
 }
+
+GFXProgram::~GFXProgram(){};

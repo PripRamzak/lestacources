@@ -3,25 +3,18 @@
 #include <algorithm>
 #include <iostream>
 
-Color::Color()
-    : red(0)
-    , green(0)
-    , blue(0)
-{
-}
-
-Color::Color(uint8_t r, uint8_t g, uint8_t b)
-    : red(r)
-    , green(g)
-    , blue(b)
-{
-}
-
 bool operator==(const Color& color_first, const Color& color_second)
 {
     return color_first.red == color_second.red &&
            color_first.green == color_second.green &&
            color_first.blue == color_second.blue;
+}
+
+Color Color::GenerateRandom()
+{
+    return { static_cast<uint8_t>(std::rand() % 256),
+             static_cast<uint8_t>(std::rand() % 256),
+             static_cast<uint8_t>(std::rand() % 256) };
 }
 
 Canvas::Canvas()
@@ -110,6 +103,11 @@ Color Canvas::GetPixel(size_t x, size_t y) const
 {
     size_t pixel_number = width * y + x;
     return pixels.at(pixel_number);
+}
+
+std::vector<Color>& Canvas::GetPixels()
+{
+    return pixels;
 }
 
 std::vector<Color>::iterator Canvas::Begin()

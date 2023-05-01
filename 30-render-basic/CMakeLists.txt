@@ -14,4 +14,9 @@ add_executable(03-render-triangle-indexed 00-canvas.cxx 01-render-line.cxx 02-re
 target_compile_features(03-render-triangle-indexed PUBLIC cxx_std_20)
 
 add_executable(04-render-triangle-interpolated 00-canvas.cxx 01-render-line.cxx 02-render-triangle.cxx 03-render-triangle-indexed.cxx 04-render-triangle-interpolated.hxx 04-render-triangle-interpolated.cxx 04-render-triangle-interpolated_main.cxx)
-target_compile_features(03-render-triangle-indexed PUBLIC cxx_std_20)
+target_compile_features(04-render-triangle-interpolated PUBLIC cxx_std_20)
+
+find_package(SDL3 REQUIRED)
+add_executable(05-render-program 00-canvas.cxx 01-render-line.cxx 02-render-triangle.cxx 03-render-triangle-indexed.cxx 04-render-triangle-interpolated.cxx 05-render-program.hxx 05-render-program.cxx 05-render-program_main.cxx)
+target_compile_features(05-render-program PUBLIC cxx_std_20)
+target_link_libraries(05-render-program PRIVATE SDL3::SDL3-shared)

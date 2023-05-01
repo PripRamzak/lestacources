@@ -1,9 +1,10 @@
 build
 SDL
+01-helloworld/CMakeLists.txt.user
 build-HelloWorld-Desktop-Debug
-HelloWorld/CMakeLists.txt.user
 11-simple-SDL-version/CMakeLists.txt.user
 12-windowed-SDL-version/CMakeLists.txt.user
+build-12-windowed-SDL-version-Desktop-Debug/
 21-SDL-loop/CMakeLists.txt.user
 22-SDL-engine-static/CMakeLists.txt.user
 23-SDL-engine-shared/CMakeLists.txt.user
@@ -11,4 +12,9 @@ HelloWorld/CMakeLists.txt.user
 build-24-SDL-hot-reload-Desktop-Debug
 30-render-basic/CMakeLists.txt.user
 build-30-render-basic-Desktop-Debug/
+30-render-basic/cmake-build-debug/
+30-render-basic/.idea/
 Test/
+
+	
+

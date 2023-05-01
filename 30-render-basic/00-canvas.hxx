@@ -4,19 +4,14 @@
 #include <fstream>
 #include <vector>
 
-class Color
+struct Color
 {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-
-public:
-    Color();
-    Color(uint8_t r, uint8_t g, uint8_t b);
+    uint8_t     red;
+    uint8_t     green;
+    uint8_t     blue;
     friend bool operator==(const Color& color_first, const Color& color_second);
-    friend Color interpolate(const Color& first,
-                             const Color& second,
-                             const double t);
+    static Color GenerateRandom();
+    Color interpolate(const Color& first, const Color& second, const double t);
 };
 
 class Canvas
@@ -32,6 +27,7 @@ public:
     bool                         LoadImage(std::string& filename);
     void                         SetPixel(size_t x, size_t y, Color& c);
     Color                        GetPixel(size_t x, size_t y) const;
+    std::vector<Color>&          GetPixels();
     std::vector<Color>::iterator Begin();
     std::vector<Color>::iterator End();
     friend bool                  operator==(const Canvas& canvas_first,
