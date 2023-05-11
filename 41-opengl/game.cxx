@@ -11,8 +11,9 @@ int main(int argc, char** argv)
     if (!engine->initialize())
         return EXIT_FAILURE;
 
-    std::chrono::high_resolution_clock::time_point time_start =
-        std::chrono::high_resolution_clock::now();
+    using namespace std::chrono;
+
+    high_resolution_clock::time_point time_start = high_resolution_clock::now();
 
     bool  quit = false;
     event event;
@@ -36,8 +37,7 @@ int main(int argc, char** argv)
         for (auto triangle : triangles)
         {
             float time_value =
-                (time_start - std::chrono::high_resolution_clock::now())
-                    .count() /
+                (time_start - high_resolution_clock::now()).count() /
                 1'000'000'000.f;
             engine->set_uniforms("time", time_value);
 
