@@ -14,6 +14,8 @@ build-24-SDL-hot-reload-Desktop-Debug
 build-30-render-basic-Desktop-Debug/
 30-render-basic/cmake-build-debug/
 30-render-basic/.idea/
+build-41-opengl-clear-Desktop-Debug/
+41-opengl/CMakeLists.txt.user
 Test/
 
 	
