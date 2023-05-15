@@ -3,11 +3,10 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <chrono>
 #include <filesystem>
-#include <memory>
+#include <fstream>
+#include <sstream>
 #include <stdexcept>
-#include <thread>
 
 #include <SDL3/SDL.h>
 
@@ -256,19 +255,29 @@ public:
 
         // create vertex shader
         GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-        // TODO
-        const char* vertex_shader_src = R"(
-                                    #version 300 es
-                                    in vec3 a_position;
-                                    out vec4 v_position;
 
-                                    void main()
-                                    {
-                                        v_position = vec4(a_position, 1.0);
-                                        gl_Position = v_position;
-                                    }
-                                    )";
-        glShaderSource(vertex_shader, 1, &vertex_shader_src, nullptr);
+        std::stringstream ss;
+        ss.clear();
+        std::ifstream vertex_shader_file;
+        std::string   vertex_shader_src;
+        const char*   src_code;
+        
+        vertex_shader_file.exceptions(std::ifstream::failbit);
+        try
+        {
+            vertex_shader_file.open("./vertex_shader.glsl");
+            ss << vertex_shader_file.rdbuf();
+            vertex_shader_file.close();
+        }
+        catch (std::ifstream::failure)
+        {
+            std::cerr << "Exception opening/reading/closing file1" << std::endl;
+            return false;
+        }
+        vertex_shader_src = ss.str();
+        src_code          = vertex_shader_src.c_str();
+
+        glShaderSource(vertex_shader, 1, &src_code, nullptr);
         gl_check();
         glCompileShader(vertex_shader);
         gl_check();
@@ -301,21 +310,28 @@ public:
         // create fragment shader
         GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
         gl_check();
-        const char* fragment_shader_src = R"(
-                      #version 300 es
-                      precision mediump float;
 
-                      in vec4 v_position;
-                      uniform float time;
-                      out vec4 frag_color;
+        std::ifstream fragment_shader_file;
+        std::string   fragment_shader_src;
+        ss.str("");
+        ss.clear();
 
-                      void main()
-                      {
-                          float blue_color = abs((v_position.x - v_position.y) / 2. * sin(time));
-                          frag_color = vec4(abs(sin(time) * v_position.x), abs(sin(time) * v_position.y), blue_color, 1.0);
-                      }
-                      )";
-        glShaderSource(fragment_shader, 1, &fragment_shader_src, nullptr);
+        fragment_shader_file.exceptions(std::ifstream::failbit);
+        try
+        {
+            fragment_shader_file.open("./fragment_shader.glsl");
+            ss << fragment_shader_file.rdbuf();
+            fragment_shader_file.close();
+            fragment_shader_src = ss.str();
+        }
+        catch (std::ifstream::failure)
+        {
+            std::cerr << "Exception opening/reading/closing file2" << std::endl;
+            return false;
+        }
+        src_code = fragment_shader_src.c_str();
+
+        glShaderSource(fragment_shader, 1, &src_code, nullptr);
         gl_check();
         glCompileShader(fragment_shader);
         gl_check();
@@ -334,7 +350,7 @@ public:
 
             std::cerr << "Error while compiling fragment shader\nSourceCode:\n"
                       << fragment_shader_src << std::endl
-                      << info_log.data();
+                      << info_log.data() << std::endl;
 
             SDL_GL_DeleteContext(context);
             SDL_DestroyWindow(window);
