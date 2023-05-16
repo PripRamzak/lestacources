@@ -18,6 +18,8 @@ build-41-opengl-clear-Desktop-Debug/
 41-opengl/CMakeLists.txt.user
 41-opengl/.idea/
 41-opengl/cmake-build-debug/
+51-simple-morphing/.idea/
+51-simple-morphing/cmake-build-debug/
 Test/
 
 	
