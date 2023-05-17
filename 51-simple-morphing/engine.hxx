@@ -35,7 +35,7 @@ struct vertex
 };
 
 vertex        interpolate(vertex& v1, vertex& v2, float alpha);
-std::istream& operator>>(std::istream& is, vertex& triangle);
+std::istream& operator>>(std::istream& is, vertex& vertex);
 
 struct triangle
 {
