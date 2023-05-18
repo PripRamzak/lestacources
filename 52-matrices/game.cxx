@@ -18,9 +18,6 @@ int main(int /*argc*/, char** /*argv*/)
     if (!engine->load_texture())
         return EXIT_FAILURE;
 
-    using namespace std::chrono;
-    high_resolution_clock::time_point time_start = high_resolution_clock::now();
-
     std::vector<triangle_2d> texture_triangles;
     texture_triangles.resize(2);
     std::vector<triangle_2d> texture_triangles_centred;
