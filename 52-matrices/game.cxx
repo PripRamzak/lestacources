@@ -47,8 +47,6 @@ int main(int /*argc*/, char** /*argv*/)
                     texture_triangles[1].vertices[2].y) /
                        2;
 
-    std::cout << radius;
-
     float cur_x = texture_triangles[1].vertices[2].x +
                   (texture_triangles[1].vertices[1].x -
                    texture_triangles[1].vertices[2].x) /
