@@ -1,11 +1,10 @@
 #include "engine.hxx"
+#include "shader_program.hxx"
 
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cmath>
-#include <fstream>
-#include <sstream>
 #include <stdexcept>
 
 #include <SDL3/SDL.h>
@@ -17,158 +16,20 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-void gl_check()
-{
-    const int error = static_cast<int>(glGetError());
-    if (error != GL_NO_ERROR)
-    {
-        switch (error)
-        {
-            case GL_INVALID_ENUM:
-                std::cerr << "GL_INVALID_ENUM error" << std::endl;
-                break;
-            case GL_INVALID_VALUE:
-                std::cerr << "GL_INVALID_VALUE error" << std::endl;
-                break;
-            case GL_INVALID_OPERATION:
-                std::cerr << "GL_INVALID_OPERATION error" << std::endl;
-                break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION error"
-                          << std::endl;
-                break;
-            case GL_OUT_OF_MEMORY:
-                std::cerr << "GL_OUT_OF_MEMORY error" << std::endl;
-                break;
-        }
-        assert(false);
-    }
-}
+bool check_pressing_key(SDL_Event sdl_event, event& event);
 
-static std::array<std::string_view, 17> event_names = {
-    { "Up button pressed",
-      "Up button released",
-      "Down button pressed",
-      "Down button released",
-      "Left button pressed",
-      "Left button released",
-      "Right button pressed",
-      "Right button released",
-      "Button1 pressed",
-      "Button1 released",
-      "Button2 pressed",
-      "Button2 released",
-      "Select button pressed",
-      "Select button released",
-      "Start button pressed",
-      "Start button released",
-      "Turn off" }
-};
-
-std::ostream& operator<<(std::ostream& out, const event& event)
-{
-    int min_value = static_cast<int>(event::up_pressed);
-    int max_value = static_cast<int>(event::null_event);
-    int cur_value = static_cast<int>(event);
-    if (cur_value >= min_value && cur_value <= max_value)
-    {
-        out << event_names[cur_value];
-        return out;
-    }
-    else
-        throw std::runtime_error("There is no such event value");
-}
-
-struct bind
-{
-    SDL_Keycode      key;
-    std::string_view name;
-    event            event_pressed;
-    event            event_released;
-};
-
-std::array<bind, 9> key_bindings = {
-    { { SDLK_w, "Up", event::up_pressed, event::up_released },
-      { SDLK_s, "Down", event::down_pressed, event::down_released },
-      { SDLK_a, "Left", event::left_pressed, event::left_released },
-      { SDLK_d, "Right", event::right_pressed, event::right_released },
-      { SDLK_1, "Button 1", event::button1_pressed, event::button1_released },
-      { SDLK_2, "Button 2", event::button2_pressed, event::button2_released },
-      { SDLK_e, "Select", event::select_pressed, event::select_released },
-      { SDLK_SPACE, "Start", event::start_pressed, event::start_released },
-      { SDLK_ESCAPE, "Close", event::turn_off, event::null_event } }
-};
-
-bool CheckPressingKey(SDL_Event sdl_event, event& event)
-{
-    const auto it = std::find_if(key_bindings.begin(),
-                                 key_bindings.end(),
-                                 [&](const ::bind& b)
-                                 { return b.key == sdl_event.key.keysym.sym; });
-    if (it != key_bindings.end())
-    {
-        if (sdl_event.type == SDL_EVENT_KEY_DOWN)
-            event = it->event_pressed;
-        else if (sdl_event.type == SDL_EVENT_KEY_UP)
-            event = it->event_released;
-        return true;
-    }
-    return false;
-}
-
-vertex interpolate(vertex& v1, vertex& v2, float alpha)
-{
-    vertex v;
-    v.x = (1.f - alpha) * v1.x + v2.x * alpha;
-    v.y = (1.f - alpha) * v1.y + v2.y * alpha;
-    v.z = (1.f - alpha) * v1.z + v2.z * alpha;
-    return v;
-}
-
-std::istream& operator>>(std::istream& is, vertex_2d& vertex)
-{
-    is >> vertex.x >> vertex.y >> vertex.u >> vertex.v;
-    return is;
-}
-
-std::istream& operator>>(std::istream& is, vertex& vertex)
-{
-    is >> vertex.x >> vertex.y >> vertex.z;
-    return is;
-}
-
-std::istream& operator>>(std::istream& is, triangle_2d& triangle)
-{
-    is >> triangle.vertices[0] >> triangle.vertices[1] >> triangle.vertices[2];
-    return is;
-}
-
-triangle transform(triangle& t1, triangle& t2, float alpha)
-{
-    vertex   v1 = interpolate(t1.vertices[0], t2.vertices[0], alpha);
-    vertex   v2 = interpolate(t1.vertices[1], t2.vertices[1], alpha);
-    vertex   v3 = interpolate(t1.vertices[2], t2.vertices[2], alpha);
-    triangle t  = { v1, v2, v3 };
-    return t;
-}
-
-std::istream& operator>>(std::istream& is, triangle& triangle)
-{
-    is >> triangle.vertices[0] >> triangle.vertices[1] >> triangle.vertices[2];
-    return is;
-}
+void gl_check();
 
 class game_engine final : public engine
 {
-    SDL_Window*   window;
-    SDL_GLContext context;
-    GLuint        program;
+    SDL_Window*    window;
+    SDL_GLContext  context;
+    shader_program program;
 
 public:
     game_engine()
         : window(nullptr)
         , context(nullptr)
-        , program(0)
     {
     }
 
@@ -290,167 +151,30 @@ public:
             return false;
         }
 
-        // create vertex shader
-        GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-
-        std::stringstream ss;
-        ss.clear();
-        std::ifstream vertex_shader_file;
-        std::string   vertex_shader_src;
-        const char*   src_code;
-
-        vertex_shader_file.exceptions(std::ifstream::failbit);
-        try
+        if (!program.create_shader("./53-move-knight/vertex_shader.glsl",
+                                   shader_type::vertex))
         {
-            vertex_shader_file.open("./53-move-knight/vertex_shader.glsl");
-            ss << vertex_shader_file.rdbuf();
-            vertex_shader_file.close();
-        }
-        catch (std::ifstream::failure)
-        {
-            std::cerr << "Exception opening/reading/closing file1" << std::endl;
+            SDL_GL_DeleteContext(context);
+            SDL_DestroyWindow(window);
+            SDL_Quit();
             return false;
         }
-        vertex_shader_src = ss.str();
-        src_code          = vertex_shader_src.c_str();
-
-        glShaderSource(vertex_shader, 1, &src_code, nullptr);
-        gl_check();
-        glCompileShader(vertex_shader);
-        gl_check();
-
-        GLint compiled_status = 0;
-        glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &compiled_status);
-        gl_check();
-        if (compiled_status == 0)
+        if (!program.create_shader("./53-move-knight/fragment_shader.glsl",
+                                   shader_type::fragment))
         {
-            GLint info_length = 0;
-            glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &info_length);
-            gl_check();
-            std::vector<char> info_log(static_cast<size_t>(info_length));
-            glGetShaderInfoLog(
-                vertex_shader, info_length, nullptr, info_log.data());
-            gl_check();
-            glDeleteShader(vertex_shader);
-            gl_check();
-
-            std::cerr << "Error while compiling vertex shader\nSourceCode:\n"
-                      << vertex_shader_src << std::endl
-                      << info_log.data();
-
             SDL_GL_DeleteContext(context);
             SDL_DestroyWindow(window);
             SDL_Quit();
             return false;
         }
 
-        // create fragment shader
-        GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-        gl_check();
-
-        std::ifstream fragment_shader_file;
-        std::string   fragment_shader_src;
-        ss.str("");
-        ss.clear();
-
-        fragment_shader_file.exceptions(std::ifstream::failbit);
-        try
+        if (!program.create_program())
         {
-            fragment_shader_file.open("./53-move-knight/fragment_shader.glsl");
-            ss << fragment_shader_file.rdbuf();
-            fragment_shader_file.close();
-            fragment_shader_src = ss.str();
-        }
-        catch (std::ifstream::failure)
-        {
-            std::cerr << "Exception opening/reading/closing file2" << std::endl;
-            return false;
-        }
-        src_code = fragment_shader_src.c_str();
-
-        glShaderSource(fragment_shader, 1, &src_code, nullptr);
-        gl_check();
-        glCompileShader(fragment_shader);
-        gl_check();
-
-        glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &compiled_status);
-        gl_check();
-        if (compiled_status == 0)
-        {
-            GLint info_length = 0;
-            glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &info_length);
-            gl_check();
-            std::vector<char> info_log(static_cast<size_t>(info_length));
-            glGetShaderInfoLog(
-                fragment_shader, info_length, nullptr, info_log.data());
-            gl_check();
-
-            std::cerr << "Error while compiling fragment shader\nSourceCode:\n"
-                      << fragment_shader_src << std::endl
-                      << info_log.data() << std::endl;
-
             SDL_GL_DeleteContext(context);
             SDL_DestroyWindow(window);
             SDL_Quit();
             return false;
         }
-
-        // Create program and attach shaders
-
-        program = glCreateProgram();
-        gl_check();
-        if (program == 0)
-        {
-            std::cerr << "Create program error" << std::endl;
-
-            SDL_GL_DeleteContext(context);
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            return false;
-        }
-
-        glAttachShader(program, vertex_shader);
-        gl_check();
-        glAttachShader(program, fragment_shader);
-        gl_check();
-
-        glLinkProgram(program);
-        gl_check();
-
-        GLint linked_status = 0;
-        glGetProgramiv(program, GL_LINK_STATUS, &linked_status);
-        gl_check();
-        if (linked_status == 0)
-        {
-            GLint info_length = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_length);
-            gl_check();
-            std::vector<char> info_log(static_cast<size_t>(info_length));
-            glGetProgramInfoLog(program, info_length, nullptr, info_log.data());
-            gl_check();
-
-            std::cerr << "Error while linking program: " << info_log.data();
-
-            glDeleteProgram(program);
-            gl_check();
-            SDL_GL_DeleteContext(context);
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            return false;
-        }
-
-        glUseProgram(program);
-        gl_check();
-
-        glDeleteShader(vertex_shader);
-        gl_check();
-        glDeleteShader(fragment_shader);
-        gl_check();
-
-        glEnable(GL_BLEND);
-        gl_check();
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        gl_check();
 
         return true;
     }
@@ -468,7 +192,7 @@ public:
             }
             else if (sdl_event.type == SDL_EVENT_KEY_DOWN ||
                      sdl_event.type == SDL_EVENT_KEY_UP)
-                if (CheckPressingKey(sdl_event, event))
+                if (check_pressing_key(sdl_event, event))
                     return true;
         }
         return false;
@@ -490,7 +214,8 @@ public:
 
     void set_uniform(const char* name, float value) final
     {
-        GLint uniform_location = glGetUniformLocation(program, name);
+        GLint uniform_location =
+            glGetUniformLocation(program.get_program(), name);
         glUniform1f(uniform_location, value);
     }
 
@@ -530,7 +255,7 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         gl_check();
 
-        GLint location = glGetUniformLocation(program, "texture");
+        GLint location = glGetUniformLocation(program.get_program(), "texture");
         gl_check();
         assert(-1 != location);
         glUniform1i(location, 0);
@@ -545,10 +270,10 @@ public:
                       float                     dy,
                       int&                      direction) final
     {
-        bool new_direction = 0;
+        bool new_direction = false;
         if (dx < 0 && direction != 1 || dx > 0 && direction != 0)
         {
-            new_direction = 1;
+            new_direction = true;
             direction     = direction == 0 ? 1 : 0;
         }
 
@@ -596,13 +321,16 @@ public:
         const float   step_x             = 2. / triangles_number_x;
         const float   step_y             = 2. / triangles_number_x;
 
-        std::vector<vertex> vertices;
+        std::vector<struct vertex> vertices;
         vertices.reserve((triangles_number_x + 1) * (triangles_number_y + 1));
 
         for (int y = 0; y <= triangles_number_y; y++)
             for (int x = 0; x <= triangles_number_x; x++)
             {
-                vertex vertex{ -1 + step_x * x, 1 - step_y * y, 0.f };
+                struct vertex vertex
+                {
+                    - 1 + step_x *x, 1 - step_y *y, 0.f
+                };
                 vertices.push_back(vertex);
             }
 
@@ -671,18 +399,21 @@ public:
         glEnableVertexAttribArray(1);
         gl_check();
 
-        glValidateProgram(program);
+        glValidateProgram(program.get_program());
         gl_check();
         GLint validate_status = 0;
-        glGetProgramiv(program, GL_VALIDATE_STATUS, &validate_status);
+        glGetProgramiv(
+            program.get_program(), GL_VALIDATE_STATUS, &validate_status);
         gl_check();
         if (validate_status == GL_FALSE)
         {
             GLint info_length = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_length);
+            glGetProgramiv(
+                program.get_program(), GL_INFO_LOG_LENGTH, &info_length);
             gl_check();
             std::vector<char> info_log(static_cast<size_t>(info_length));
-            glGetProgramInfoLog(program, info_length, nullptr, info_log.data());
+            glGetProgramInfoLog(
+                program.get_program(), info_length, nullptr, info_log.data());
             gl_check();
 
             std::cerr << "Incorrect validate status: " << info_log.data()
@@ -704,18 +435,21 @@ public:
         glEnableVertexAttribArray(0);
         gl_check();
 
-        glValidateProgram(program);
+        glValidateProgram(program.get_program());
         gl_check();
         GLint validate_status = 0;
-        glGetProgramiv(program, GL_VALIDATE_STATUS, &validate_status);
+        glGetProgramiv(
+            program.get_program(), GL_VALIDATE_STATUS, &validate_status);
         gl_check();
         if (validate_status == GL_FALSE)
         {
             GLint info_length = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_length);
+            glGetProgramiv(
+                program.get_program(), GL_INFO_LOG_LENGTH, &info_length);
             gl_check();
             std::vector<char> info_log(static_cast<size_t>(info_length));
-            glGetProgramInfoLog(program, info_length, nullptr, info_log.data());
+            glGetProgramInfoLog(
+                program.get_program(), info_length, nullptr, info_log.data());
             gl_check();
 
             std::cerr << "Incorrect validate status: " << info_log.data()
@@ -767,8 +501,7 @@ public:
 
     void uninitialize() final
     {
-        glDeleteProgram(program);
-        gl_check();
+        program.delete_progam();
         SDL_GL_DeleteContext(context);
         SDL_DestroyWindow(window);
         SDL_Quit();

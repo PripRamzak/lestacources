@@ -2,7 +2,17 @@ cmake_minimum_required(VERSION 3.10)
 
 project(53-move-knight)
 
-add_library(engine-53 SHARED engine.cxx engine.hxx glad/glad.c glad/glad.h KHR/khrplatform.h stb_image.h)
+add_library(engine-53 SHARED
+        engine.cxx
+        engine.hxx
+        event.cxx
+        event.hxx
+        geometry.cxx
+        geometry.hxx
+        glad/glad.c
+        glad/glad.h
+        KHR/khrplatform.h
+        stb_image.h shader_program.cxx shader_program.hxx)
 target_compile_features(engine-53 PUBLIC cxx_std_20)
 target_include_directories(engine-53 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

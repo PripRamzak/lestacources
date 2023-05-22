@@ -64,7 +64,7 @@ int main(int /*argc*/, char** /*argv*/)
                 break;
             }
         }
-        
+
         engine->draw_triangles_2d(texture_triangles[0]);
         engine->draw_triangles_2d(texture_triangles[1]);
 
