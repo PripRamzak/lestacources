@@ -51,13 +51,13 @@ int main(int /*argc*/, char** /*argv*/)
         {
             std::cout << event << std::endl;
             if (event == event::up_pressed)
-                engine->move_texture(texture_triangles, 0.f, 0.05f, direction);
+                engine->move_texture(texture_triangles, 0.f, 0.03f, direction);
             else if (event == event::down_pressed)
-                engine->move_texture(texture_triangles, 0.f, -0.05f, direction);
+                engine->move_texture(texture_triangles, 0.f, -0.03f, direction);
             else if (event == event::left_pressed)
-                engine->move_texture(texture_triangles, -0.05f, 0.f, direction);
+                engine->move_texture(texture_triangles, -0.03f, 0.f, direction);
             else if (event == event::right_pressed)
-                engine->move_texture(texture_triangles, 0.05f, 0.f, direction);
+                engine->move_texture(texture_triangles, 0.03f, 0.f, direction);
             if (event == event::turn_off)
             {
                 quit = true;

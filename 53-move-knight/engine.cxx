@@ -168,7 +168,7 @@ public:
             return false;
         }
 
-        if (!program.create_program())
+        if (!program.create())
         {
             SDL_GL_DeleteContext(context);
             SDL_DestroyWindow(window);
@@ -501,7 +501,7 @@ public:
 
     void uninitialize() final
     {
-        program.delete_progam();
+        program.delete_program();
         SDL_GL_DeleteContext(context);
         SDL_DestroyWindow(window);
         SDL_Quit();

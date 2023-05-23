@@ -37,7 +37,7 @@ void gl_check()
     }
 }
 
-bool shader_program::create_program()
+bool shader_program::create()
 {
     program = glCreateProgram();
     gl_check();
@@ -163,7 +163,7 @@ bool shader_program::create_shader(const char* file_path, shader_type type)
     return true;
 }
 
-void shader_program::delete_progam()
+void shader_program::delete_program()
 {
     glDeleteProgram(program);
     gl_check();

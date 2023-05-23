@@ -13,8 +13,8 @@ class shader_program
     unsigned int fragment_shader = 0;
 
 public:
-    bool         create_program();
+    bool         create();
     unsigned int get_program();
     bool         create_shader(const char* file_path, shader_type type);
-    void         delete_progam();
+    void         delete_program();
 };
